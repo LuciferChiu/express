@@ -28,16 +28,14 @@ app.use(function(req,res,next){
   next()
 })
 
+app.use('/list',function(req,res){
+  res.send('<ul><li><a href="/article?id=1">第一篇文章</a></li><li><a href="/article?id=2">第一篇文章</a></li><li><a href="/article?id=3">第一篇文章</a></li></ul>')  
+})
+app.use('/article',function(req,res){
+  res.send(articles[req.query.id])
+})
 app.use(function(req,res){
-  if(req.path == '/'){
-    res.send('<ul><li><a href="/article?id=1">第一篇文章</a></li><li><a href="/article?id=2">第一篇文章</a></li><li><a href="/article?id=3">第一篇文章</a></li></ul>')
-  }else if(req.path == '/article'){
-    res.send(articles[req.query.id])
-  }else{
-    res.end('404')
-  }
+  res.end('404')
 })
 
-var server = http.createServer(app)
-
-server.listen(8080)
+app.listen(8080)

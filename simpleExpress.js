@@ -1,5 +1,5 @@
 const http = require('http')
-
+const url = require('url')
 
 var express = function(){
   var app = function(req,res){
@@ -13,17 +13,36 @@ var express = function(){
 }
 
 var proto = {
-  use: function(fn){
-    this.stack.push(fn)
+  use: function(path,fn){
+    if(typeof path !== 'string'){
+      fn = path
+      path = '/'
+    }
+    this.stack.push({fn: fn,path: path})
   },
 
   handle: function(req,res){
     var stack = this.stack
     var index = 0
     function next(){
-      stack[index++](req,res,next)
+      var layer = stack[index++]
+      var route = layer.path
+      var fn = layer.fn
+
+      var path = url.parse(req.url).pathname
+      if(path.startsWith(route)){
+        fn(req,res,next)
+      }else{
+        next()
+      }
     }
     next()
   },
+
+  listen: function(port){
+    var server = http.createServer(this)
+    server.listen(port)
+  },
 }
+
 module.exports = express
